@@ -1,42 +1,38 @@
-name: Build and Push Docker Image
+name: Local MLOps CI/CD Pipeline
 
 on:
   push:
     branches:
-      - main  # main 브랜치에 푸시되는 경우 동작
+      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  build-push-deploy:
+    runs-on: self-hosted  # 사용자의 로컬 윈도우 컴퓨터에서 작동
     
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        
+      # 1. Docker Hub 로그인 (PR이 아닐 때만)
       - name: Login to Docker Hub
-        # PR인 경우 빌드만 테스트하고 Push는 건너뜁니다
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
+        run: |
+          docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
+
+      # 2. 로컬 도커 데몬을 사용하여 명시적으로 이미지 빌드 및 Docker Hub 업로드
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          # PR이면 빌드 결과만 확인 (Push 안 함) / 일반 푸시이면 Push 진행
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/waste-classifier-api:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/waste-classifier-api:${{ github.sha }}
-          # Docker 빌드 레이어 캐싱 활성화 (빌드 속도 향상)
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/waste-classifier-api:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/waste-classifier-api:buildcache,mode=max
+        if: github.event_name != 'pull_request'
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/waste-classifier-api:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/waste-classifier-api:latest
+
+      # 3. 로컬 컴퓨터(본인 PC)에 서버 컨테이너 자동 실행 
+      - name: Deploy Local API Server
+        if: github.event_name != 'pull_request'
+        run: |
+          # 기존 컨테이너가 있으면 내리고, 새 이미지로 다시 올림
+          docker-compose down
+          docker-compose up -d --build
