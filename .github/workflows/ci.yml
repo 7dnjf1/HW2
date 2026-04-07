@@ -18,8 +18,10 @@ jobs:
 
       # 1. Docker Hub 로그인
       - name: Login to Docker Hub
-        run: |
-          docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # 2. 로컬 도커 데몬을 사용하여 명시적으로 이미지 빌드 및 Docker Hub 업로드
       - name: Build and Push Docker Image
