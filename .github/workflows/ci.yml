@@ -24,12 +24,16 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # 2. 로컬 도커 데몬을 사용하여 명시적으로 이미지 빌드 및 Docker Hub 업로드
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/waste-classifier-api:latest
+      - name: Build Docker Image
+        shell: bash
+        run: |
+          echo "Building image for: ${{ secrets.DOCKERHUB_USERNAME }}"
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/waste-classifier-api:latest .
+          
+      - name: Push Docker Image
+        shell: bash
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/waste-classifier-api:latest
 
       # 3. 로컬 컴퓨터(본인 PC)에 서버 컨테이너 자동 실행 
       - name: Deploy Local API Server
