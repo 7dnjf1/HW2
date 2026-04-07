@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# 환경 설정
+.env
+venv/
+.venv/
+env/
+
+# ML 모델 캐시 (용량 큼)
+models/
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# 테스트 결과
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: waste-classifier-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=false
+      - HOST=0.0.0.0
+      - PORT=8000
+      - MODEL_CACHE_DIR=/app/models
+      - CONFIDENCE_THRESHOLD=0.15
+    volumes:
+      # 모델 캐시를 호스트에 마운트 → 재시작 시 재다운로드 방지
+      - model_cache:/app/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 30s
+      start_period: 120s   # 모델 최초 다운로드 시간 고려
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G        # CLIP 모델 메모리 여유분 포함
+        reservations:
+          memory: 1G
+
+volumes:
+  model_cache:
+    driver: local

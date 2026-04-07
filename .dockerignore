@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.env
+
+# git 파일 제외 (이미지 용량 절약)
+.git/
+.gitignore
+.github/
+
+# 의존성 제외 (Dockerfile에서 자체 설치하므로 불필요)
+models/
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# IDE 등
+.vscode/
+.idea/
+*.md
+pytest.ini
+tests/

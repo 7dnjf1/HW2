@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────────
+# 지능형 분리수거 도우미 API — requirements.txt
+# Python 3.11+ 권장
+# ─────────────────────────────────────────────
+
+# ── 웹 프레임워크 ──────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.20      # 파일 업로드 지원
+
+# ── ML / 이미지 처리 ──────────────────────────
+torch>=2.6.0                  # CPU 버전; GPU 사용 시 별도 설치 참고
+torchvision>=0.21.0
+transformers>=4.47.1          # Hugging Face CLIP 모델
+Pillow>=10.0.0                # 이미지 로드·변환
+huggingface-hub>=0.27.0       # 모델 캐시 관리
+accelerate>=1.2.1             # 모델 로드 최적화
+
+# ── 설정 관리 ──────────────────────────────────
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# ── 테스트 ──────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.25.0
+httpx==0.28.1                 # FastAPI TestClient
